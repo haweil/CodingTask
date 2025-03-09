@@ -16,7 +16,6 @@ class UrlService
     protected const CACHE_TTL = 86400;
     public function shortenUrl(string $originalUrl, ?string $customAlias = null): ShortUrl
     {
-        Log::info("Shortening URL", ['original_url' => $originalUrl, 'custom_alias' => $customAlias]);
         $alias = $customAlias ?? Str::random(6);
         while (ShortUrl::where('alias', $alias)->exists()) {
             Log::warning("Alias already exists, generating new one", ['alias' => $alias]);
@@ -26,7 +25,6 @@ class UrlService
             'original_url' => $originalUrl,
             'alias' => $alias
         ]);
-        Log::info("Before storing in Redis", ['key' => "short_url:{$alias}", 'value' => $shortUrl->original_url]);
         Redis::set("short_url:{$alias}", $shortUrl->original_url);
         Redis::expire("short_url:{$alias}", self::CACHE_TTL);
         Log::info("After storing in Redis", ['key' => "short_url:{$alias}"]);
@@ -107,7 +105,7 @@ class UrlService
             ->selectRaw('DATE(clicked_at) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date', 'asc')
-            >pluck('count', 'date');
+            > pluck('count', 'date');
 
         $geoDistribution = RedirectData::where('short_url_id', $shortUrl->id)
             ->selectRaw('JSON_EXTRACT(geo_location, "$.country") as country, COUNT(*) as count')
