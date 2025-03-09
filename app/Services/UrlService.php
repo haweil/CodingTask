@@ -49,7 +49,7 @@ class UrlService
     public function logRedirect(string $alias, Request $request): void
     {
         $shortUrl = ShortUrl::where('alias', $alias)->firstOrFail();
-        $ip = "102.186.237.148";
+        $ip = $request->ip();
         $data = [
             'short_url_id' => $shortUrl->id,
             'clicked_at' => now(),
