@@ -105,7 +105,7 @@ class UrlService
             ->selectRaw('DATE(clicked_at) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date', 'asc')
-            > pluck('count', 'date');
+            ->pluck('count', 'date');
 
         $geoDistribution = RedirectData::where('short_url_id', $shortUrl->id)
             ->selectRaw('JSON_EXTRACT(geo_location, "$.country") as country, COUNT(*) as count')
