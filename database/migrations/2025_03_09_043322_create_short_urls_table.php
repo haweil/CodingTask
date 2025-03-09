@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('urls');
+        Schema::dropIfExists('short_urls');
     }
 };
