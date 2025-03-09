@@ -1,0 +1,71 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                user: TaskAbwab
+                uid: 1000
+        container_name: url-task-app
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - .:/var/www
+        depends_on:
+            - db
+            - redis
+        ports:
+            - "8080:8000"
+        networks:
+            - url-task-network
+
+    db:
+        image: mysql:8.0
+        container_name: url-task-db
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: url-task
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_PASSWORD: secret
+            MYSQL_USER: url_user
+        volumes:
+            - dbdata:/var/lib/mysql
+        ports:
+            - "3309:3306"
+        networks:
+            - url-task-network
+
+    redis:
+        image: redis:alpine
+        container_name: url-task-redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        volumes:
+            - redisdata:/data
+        networks:
+            - url-task-network
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        container_name: url-task-phpmyadmin
+        restart: unless-stopped
+        environment:
+            PMA_HOST: db
+            PMA_PORT: 3306
+            PMA_USER: url_user
+            PMA_PASSWORD: secret
+        ports:
+            - "8088:80"
+        depends_on:
+            - db
+        networks:
+            - url-task-network
+
+networks:
+    url-task-network:
+        driver: bridge
+
+volumes:
+    dbdata:
+    redisdata:
